@@ -1,20 +1,20 @@
-import * as THREE from 'three';
-import vertexSrc from './shaders/vertex.glsl?raw';
-import fragmentSrc from './shaders/fragment.glsl?raw';
+import * as THREE from "three";
+import vertexSrc from "./shaders/vertex.glsl?raw";
+import fragmentSrc from "./shaders/fragment.glsl?raw";
 
 /* ---------------------------------------------------------- */
 /* Museum Garments Landing Page with Interactive Dither Effect */
 /* ---------------------------------------------------------- */
 
-const bg = document.getElementById('hero_bg');
-if (!bg) throw new Error('hero_bg element not found');
+const bg = document.getElementById("hero_bg");
+if (!bg) throw new Error("hero_bg element not found");
 
 /* ---------- Responsive image paths ------------------------- */
 const getBackgroundImagePath = () => {
   const isMobile = window.innerWidth <= 768;
-  return isMobile 
-    ? '/museum-garments-coming-soon-mobile (1).jpg'
-    : '/museum-garments-coming-soon-desktop.jpg';
+  return isMobile
+    ? "/museum-garments-coming-soon-mobile (1).jpg"
+    : "/museum-garments-coming-soon-desktop.jpg";
 };
 
 /* ---------- Texture loader -------------------------------- */
@@ -22,15 +22,17 @@ const textureLoader = new THREE.TextureLoader();
 let backgroundTexture: THREE.Texture;
 
 /* ---------- Renderer setup ----------------------------- */
-const canvas = document.createElement('canvas');
-const gl = canvas.getContext('webgl2')!;
-const renderer = new THREE.WebGLRenderer({ 
-  canvas, 
-  context: gl, 
+const canvas = document.createElement("canvas");
+const gl = canvas.getContext("webgl2")!;
+const renderer = new THREE.WebGLRenderer({
+  canvas,
+  context: gl,
   antialias: true,
-  alpha: true 
+  alpha: true,
 });
 renderer.setClearColor(0x000000, 1.0);
+// Set pixel ratio for crisp rendering on retina screens
+renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 bg.appendChild(canvas);
 
 /* ---------- Uniforms ----------------------------------- */
@@ -40,16 +42,19 @@ const uniforms = {
   uTime: { value: 0 },
   uBackgroundTexture: { value: null },
   uMousePos: { value: new THREE.Vector2(-1, -1) },
-  uClickPos: { value: (() => {
-    const arr = [];
-    for (let i = 0; i < MAX_CLICKS; i++) {
-      arr.push(new THREE.Vector2(-1, -1));
-    }
-    return arr;
-  })() },
+  uClickPos: {
+    value: (() => {
+      const arr = [];
+      for (let i = 0; i < MAX_CLICKS; i++) {
+        arr.push(new THREE.Vector2(-1, -1));
+      }
+      return arr;
+    })(),
+  },
   uClickTimes: { value: new Float32Array(MAX_CLICKS) },
-  uPixelSize: { value: 4.0 },
-  uDitherIntensity: { value: 0.3 },
+  uPixelSize: { value: 5.0 },
+  uDitherIntensity: { value: 2 },
+  uIsMobile: { value: 0.0 },
 };
 
 /* ---------- Scene, camera, and material ---------------- */
@@ -71,7 +76,7 @@ scene.add(mesh);
 const loadBackgroundTexture = () => {
   const imagePath = getBackgroundImagePath();
   currentImagePath = imagePath;
-  
+
   textureLoader.load(
     imagePath,
     (texture) => {
@@ -80,52 +85,65 @@ const loadBackgroundTexture = () => {
       texture.wrapT = THREE.ClampToEdgeWrapping;
       texture.minFilter = THREE.LinearFilter;
       texture.magFilter = THREE.LinearFilter;
-      
+
       // Update uniform
       uniforms.uBackgroundTexture.value = texture;
       backgroundTexture = texture;
-      
+
       console.log(`Loaded background texture: ${imagePath}`);
     },
     (progress) => {
-      console.log('Loading progress:', (progress.loaded / progress.total * 100) + '%');
+      console.log(
+        "Loading progress:",
+        (progress.loaded / progress.total) * 100 + "%"
+      );
     },
     (error) => {
-      console.error('Error loading background texture:', error);
+      console.error("Error loading background texture:", error);
       console.log(`Failed to load: ${imagePath}`);
     }
   );
 };
 
 /* ---------- Resize handler ----------------------------- */
-let currentImagePath = '';
+let currentImagePath = "";
 
 const resize = () => {
   const w = canvas.clientWidth || window.innerWidth;
   const h = canvas.clientHeight || window.innerHeight;
-  
+
+  // Set pixel ratio for crisp rendering on retina screens
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
   renderer.setSize(w, h, false);
-  uniforms.uResolution.value.set(w, h);
+
+  // Use actual canvas resolution for uniforms (accounts for pixel ratio)
+  const actualWidth = renderer.domElement.width;
+  const actualHeight = renderer.domElement.height;
+  uniforms.uResolution.value.set(actualWidth, actualHeight);
   
+  // Update mobile detection
+  uniforms.uIsMobile.value = isDesktop() ? 0.0 : 1.0;
+
   // Check if we need to switch background image
   const newImagePath = getBackgroundImagePath();
-  
+
   if (currentImagePath !== newImagePath) {
     currentImagePath = newImagePath;
     loadBackgroundTexture();
   }
 };
 
-window.addEventListener('resize', resize);
+window.addEventListener("resize", resize);
 
 /* ---------- Mouse interaction (desktop only) ----------- */
-const isDesktop = () => window.innerWidth > 768 && !('ontouchstart' in window);
+const isDesktop = () => window.innerWidth > 768 && !("ontouchstart" in window);
 
 let clickIx = 0;
-canvas.addEventListener('pointerdown', (e) => {
+canvas.addEventListener("pointerdown", (e) => {
   const rect = canvas.getBoundingClientRect();
   const fx = (e.clientX - rect.left) * (canvas.width / rect.width);
-  const fy = (rect.height - (e.clientY - rect.top)) * (canvas.height / rect.height);
+  const fy =
+    (rect.height - (e.clientY - rect.top)) * (canvas.height / rect.height);
 
   uniforms.uClickPos.value[clickIx].set(fx, fy);
   uniforms.uClickTimes.value[clickIx] = uniforms.uTime.value;
@@ -133,21 +151,22 @@ canvas.addEventListener('pointerdown', (e) => {
 });
 
 // Track mouse movement on desktop only
-canvas.addEventListener('pointermove', (e) => {
+canvas.addEventListener("pointermove", (e) => {
   if (!isDesktop()) {
     uniforms.uMousePos.value.set(-1, -1);
     return;
   }
-  
+
   const rect = canvas.getBoundingClientRect();
   const fx = (e.clientX - rect.left) * (canvas.width / rect.width);
-  const fy = (rect.height - (e.clientY - rect.top)) * (canvas.height / rect.height);
-  
+  const fy =
+    (rect.height - (e.clientY - rect.top)) * (canvas.height / rect.height);
+
   uniforms.uMousePos.value.set(fx, fy);
 });
 
 // Hide mouse effect when leaving canvas on desktop
-canvas.addEventListener('pointerleave', () => {
+canvas.addEventListener("pointerleave", () => {
   if (isDesktop()) {
     uniforms.uMousePos.value.set(-1, -1);
   }

@@ -5,6 +5,7 @@ uniform float uTime;
 uniform sampler2D uBackgroundTexture;
 uniform float uPixelSize;
 uniform float uDitherIntensity;
+uniform float uIsMobile;
 
 // Mouse and click interaction uniforms
 uniform vec2 uMousePos;
@@ -118,40 +119,44 @@ void main() {
     // Apply ripple effect to luminance
     luminance = clamp(luminance + rippleEffect, 0.0, 1.0);
     
-    // Mouse cursor effect (desktop only)
-    float cursorMask = 0.0;
+    // Dither effect logic
+    float ditherMask = 0.0;
     vec3 finalColor = bgColor.rgb; // Default to normal image
     
-    if (uMousePos.x >= 0.0) {
+    // On mobile, apply dither effect globally
+    if (uIsMobile > 0.5) {
+        ditherMask = 1.0; // Full effect on mobile
+    } else if (uMousePos.x >= 0.0) {
+        // On desktop, only apply within cursor area
         vec2 mouseUV = uMousePos / uResolution;
         float mouseDist = distance(uv, mouseUV);
         
         // Create a smooth circular mask around the cursor
         float cursorRadius = 0.6; // Radius of effect (5x larger)
-        cursorMask = 1.0 - smoothstep(0.0, cursorRadius, mouseDist);
+        ditherMask = 1.0 - smoothstep(0.0, cursorRadius, mouseDist);
+    }
+    
+    // Apply dithering if mask is active
+    if (ditherMask > 0.0) {
+        // Apply diamond dithering pattern with time-based movement
+        vec2 ditherCoord = fragCoord / uPixelSize + uTime * 0.02;
+        float diamondPattern = abs(fract(ditherCoord.x + ditherCoord.y) - 0.5) + abs(fract(ditherCoord.x - ditherCoord.y) - 0.5);
+        float bayerThreshold = diamondPattern - 0.5;
+        float ditheredValue = step(bayerThreshold * uDitherIntensity, luminance - 0.5);
         
-        // Only apply dithering within the cursor area
-        if (cursorMask > 0.0) {
-            // Apply diamond dithering pattern with time-based movement
-             vec2 ditherCoord = fragCoord / uPixelSize + uTime * 0.25;
-             float diamondPattern = abs(fract(ditherCoord.x + ditherCoord.y) - 0.5) + abs(fract(ditherCoord.x - ditherCoord.y) - 0.5);
-            float bayerThreshold = diamondPattern - 0.5;
-            float ditheredValue = step(bayerThreshold * uDitherIntensity, luminance - 0.5);
-            
-            // Create the dithered effect
-            vec3 ditheredColor = mix(
-                bgColor.rgb * 0.3,  // Darker version for dither "off" pixels
-                bgColor.rgb,        // Original color for dither "on" pixels
-                ditheredValue
-            );
-            
-            // Blend between normal and dithered based on cursor proximity
-            finalColor = mix(bgColor.rgb, ditheredColor, cursorMask);
-        }
+        // Create the dithered effect
+        vec3 ditheredColor = mix(
+            bgColor.rgb * 0.3,  // Darker version for dither "off" pixels
+            bgColor.rgb,        // Original color for dither "on" pixels
+            ditheredValue
+        );
+        
+        // Blend between normal and dithered based on mask
+        finalColor = mix(bgColor.rgb, ditheredColor, ditherMask);
     }
     
     // Add subtle color variation based on diamond dither pattern with movement
-    vec2 ditherCoord2 = fragCoord / uPixelSize + uTime * 0.15;
+    vec2 ditherCoord2 = fragCoord / uPixelSize + uTime * 0.02;
     float ditherPattern = abs(fract(ditherCoord2.x + ditherCoord2.y) - 0.5) + abs(fract(ditherCoord2.x - ditherCoord2.y) - 0.5);
     finalColor += vec3(ditherPattern * 0.02 - 0.01); // Very subtle color shift
     
