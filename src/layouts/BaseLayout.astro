@@ -1,0 +1,49 @@
+---
+/* Props every page supplies */
+const { title = 'Museum Garments' } = Astro.props;
+import "../styles/main.css";
+import ThreeShader from "../components/ThreeShader.astro";
+---
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{title}</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500&display=swap" rel="stylesheet" />
+  </head>
+  <body>
+    <!-- Background with dither effect -->
+    <ThreeShader />
+    
+    <!-- Dark overlay for text legibility -->
+    <div class="overlay"></div>
+    
+    <!-- Logo -->
+    <div class="logo-container">
+      <img src="/museum-logo-white.svg" alt="Museum Garments" class="logo" />
+    </div>
+    
+    <!-- Top left headline -->
+    <div class="headline-container">
+      <h1 class="headline">Next in line: our first collection</h1>
+    </div>
+    
+    <!-- Top right subheadline -->
+    <div class="sub-headline-container">
+      <h2 class="sub-headline">Starting October 2025</h2>
+    </div>
+    
+    <!-- Bottom description -->
+    <div class="description-container">
+      <p class="description">
+        Museum Garments presents its first collection where utilitarian design meets luxury sensibilities. 
+        A full vestiaire inspired by workwear, military, and utility garments, reinterpreted with modern 
+        and generous proportions in both the silhouettes and fabrics we offer: the bridge between the best 
+        of all time with the creativity and values shaping the present.
+      </p>
+    </div>
+  </body>
+</html>
