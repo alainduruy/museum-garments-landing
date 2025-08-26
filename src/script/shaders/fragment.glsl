@@ -123,10 +123,8 @@ void main() {
     float ditherMask = 0.0;
     vec3 finalColor = bgColor.rgb; // Default to normal image
     
-    // On mobile, apply dither effect globally
-    if (uIsMobile > 0.5) {
-        ditherMask = 1.0; // Full effect on mobile
-    } else if (uMousePos.x >= 0.0) {
+    // Only apply dither effect on desktop with mouse interaction
+    if (uIsMobile < 0.5 && uMousePos.x >= 0.0) {
         // On desktop, only apply within cursor area
         vec2 mouseUV = uMousePos / uResolution;
         float mouseDist = distance(uv, mouseUV);
