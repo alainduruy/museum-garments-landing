@@ -246,3 +246,8 @@ video::-webkit-media-controls {
 video::-webkit-media-controls-play-button {
   display: none !important;
 }
+
+/* New rule for Safari iOS */
+video::-webkit-media-controls-start-playback-button {
+  display: none !important;
+}
