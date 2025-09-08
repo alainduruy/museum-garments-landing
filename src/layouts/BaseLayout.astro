@@ -2,6 +2,7 @@
 /* Props every page supplies */
 const { title = 'Museum Garments' } = Astro.props;
 import "../styles/main.css";
+import Analytics from '@vercel/analytics/astro'
 ---
 <!DOCTYPE html>
 <html lang="en">
@@ -47,5 +48,6 @@ import "../styles/main.css";
       </p>
       <a href="mailto:contact@museumgarments.com" class="email">contact@museumgarments.com</a>
     </div>
+    <Analytics />
   </body>
 </html>
