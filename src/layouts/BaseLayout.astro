@@ -2,7 +2,6 @@
 /* Props every page supplies */
 const { title = 'Museum Garments' } = Astro.props;
 import "../styles/main.css";
-import ThreeShader from "../components/ThreeShader.astro";
 ---
 <!DOCTYPE html>
 <html lang="en">
@@ -15,14 +14,17 @@ import ThreeShader from "../components/ThreeShader.astro";
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500&display=swap" rel="stylesheet" />
   </head>
   <body>
-    <!-- Background with dither effect -->
-    <ThreeShader />
-    
-
-    
+    <div class="video-background">
+      <video autoplay loop muted playsinline class="video-background__video" id="mobile-video">
+        <source src="/background-video-mobile.mp4" type="video/mp4">
+      </video>
+      <video autoplay loop muted playsinline class="video-background__video" id="desktop-video">
+        <source src="/background-video-web.mp4" type="video/mp4">
+      </video>
+    </div>
     <!-- Logo -->
     <div class="logo-container">
-      <img src="/museum-logo-white.svg" alt="Museum Garments" class="logo" />
+      <img src="/museum-logo-line-white.svg" alt="Museum Garments" class="logo" />
     </div>
     
     <!-- Top left headline -->
@@ -43,6 +45,7 @@ import ThreeShader from "../components/ThreeShader.astro";
         and generous proportions in both the silhouettes and fabrics we offer: the bridge between the best 
         of all time with the creativity and values shaping the present.
       </p>
+      <a href="mailto:contact@museumgarments.com" class="email">contact@museumgarments.com</a>
     </div>
   </body>
 </html>
