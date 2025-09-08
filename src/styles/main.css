@@ -254,18 +254,18 @@ video::-webkit-media-controls-play-button {
   -webkit-appearance: none;
 }
 
-.video-failed .video-background {
+body.video-failed .video-background {
   display: none;
 }
 
-.video-failed body {
+body.video-failed {
   background-image: url('/museum-garments-coming-soon-mobile.jpg');
   background-size: cover;
   background-position: center;
 }
 
 @media (min-width: 769px) {
-  .video-failed body {
+  body.video-failed {
     background-image: url('/museum-garments-coming-soon-desktop.jpg');
   }
 }
