@@ -238,3 +238,11 @@ body {
   display: block;
   margin-top: 1.5rem;
 }
+
+video::-webkit-media-controls {
+  display: none !important;
+}
+
+video::-webkit-media-controls-play-button {
+  display: none !important;
+}

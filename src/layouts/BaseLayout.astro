@@ -17,10 +17,10 @@ import Analytics from '@vercel/analytics/astro'
   </head>
   <body>
     <div class="video-background">
-      <video autoplay loop muted playsinline preload="auto" class="video-background__video" id="mobile-video" poster="/logo-square.png">
+      <video autoplay loop muted playsinline preload="auto" class="video-background__video" id="mobile-video" poster="/museum-garments-coming-soon-mobile.jpg">
         <source src="/background-video-mobile.mp4" type="video/mp4">
       </video>
-      <video autoplay loop muted playsinline preload="auto" class="video-background__video" id="desktop-video" poster="/logo-square.png">
+      <video autoplay loop muted playsinline preload="auto" class="video-background__video" id="desktop-video" poster="/museum-garments-coming-soon-desktop.jpg">
         <source src="/background-video-web.mp4" type="video/mp4">
       </video>
     </div>
@@ -50,18 +50,5 @@ import Analytics from '@vercel/analytics/astro'
       <a href="mailto:contact@museumgarments.com" class="email">contact@museumgarments.com</a>
     </div>
     <Analytics />
-    <script>
-      document.addEventListener('DOMContentLoaded', () => {
-        const videos = document.querySelectorAll('.video-background__video');
-        videos.forEach(video => {
-          const promise = video.play();
-          if (promise !== undefined) {
-            promise.catch(error => {
-              console.error("Autoplay was prevented:", error);
-            });
-          }
-        });
-      });
-    </script>
   </body>
 </html>
