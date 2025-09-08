@@ -168,20 +168,6 @@ body {
 }
 
 @media (max-width: 480px) {
-  .headline-container {
-    top: 1rem;
-    left: 50%;
-    transform: translateX(-50%);
-    text-align: center;
-  }
-
-  .sub-headline-container {
-    top: 3rem;
-    left: 50%;
-    transform: translateX(-50%);
-    text-align: center;
-  }
-
   .description-container {
     padding: 1rem;
     text-align: center;
