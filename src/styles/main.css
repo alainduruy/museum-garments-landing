@@ -253,3 +253,19 @@ video::-webkit-media-controls-play-button {
   display: none !important;
   -webkit-appearance: none;
 }
+
+.video-failed .video-background {
+  display: none;
+}
+
+.video-failed body {
+  background-image: url('/museum-garments-coming-soon-mobile.jpg');
+  background-size: cover;
+  background-position: center;
+}
+
+@media (min-width: 769px) {
+  .video-failed body {
+    background-image: url('/museum-garments-coming-soon-desktop.jpg');
+  }
+}
